@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react"
 import portraitImage from "@/imports/WhatsApp_Image_2026-09-26_at_9.04.56_PM-2.jpeg"
-import brandIdentityImage from "@/imports/Brand_Identity.png"
-import editorialDesignImage from "@/imports/Editorial_Design-1.png"
-import campaignDesignImage from "@/imports/Campaign_Design.png"
-import socialMediaDesignImage from "@/imports/Social_Media_Design.png"
-import packagingDesignImage from "@/imports/packaging_design_with_mockup.png"
+import brandIdentityImage from "@/imports/Brand_Identity.webp"
+import editorialDesignImage from "@/imports/Editorial_Design-1.webp"
+import campaignDesignImage from "@/imports/Campaign_Design.webp"
+import socialMediaDesignImage from "@/imports/Social_Media_Design.webp"
+import packagingDesignImage from "@/imports/packaging_design_with_mockup.webp"
 
 const projectImages = [
   brandIdentityImage,
