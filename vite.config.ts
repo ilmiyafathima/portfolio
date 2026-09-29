@@ -7,11 +7,13 @@ import siteConfiguration from './.figma/make/site.json'
 
 // Vite config — https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
+  // .figma/make/deploy-preview passes `--mode development` for cached-preview builds.
   const emitSourcemaps = mode === 'development'
 
   return {
+    // GitHub Pages repository path
     base: process.env.GITHUB_ACTIONS
-      ? '/potfolio/'
+      ? '/portfolio/'
       : process.env.FIGMA_PUBLIC_URL
         ? `${process.env.FIGMA_PUBLIC_URL}/`
         : '/',
@@ -42,6 +44,7 @@ export default defineConfig(({ mode }) => {
       host: process.env.FIGMA_DEV_SERVER_HOST || '0.0.0.0',
       port: parseInt(process.env.PORT || '8443'),
       strictPort: true,
+
       watch: {
         ignored: [
           '**/.figma/**',
@@ -90,7 +93,10 @@ function figmaSiteConfiguration(config: FigmaSiteConfiguration): Plugin {
   }
 
   function escapeHtmlText(value: string): string {
-    return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
   }
 
   function replaceHtmlCommentSlot(
@@ -113,6 +119,7 @@ function figmaSiteConfiguration(config: FigmaSiteConfiguration): Plugin {
   const headEnd = config.customScripts?.headEnd ?? ''
   const bodyStart = config.customScripts?.bodyStart ?? ''
   const bodyEnd = config.customScripts?.bodyEnd ?? ''
+
   const robotsTxt =
     config.robots?.index === false
       ? 'User-agent: *\nDisallow: /\n'
@@ -123,11 +130,18 @@ function figmaSiteConfiguration(config: FigmaSiteConfiguration): Plugin {
 
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
-        if (!robotsTxt || req.url?.split('?')[0] !== '/robots.txt') {
+        if (
+          !robotsTxt ||
+          req.url?.split('?')[0] !== '/robots.txt'
+        ) {
           return next()
         }
 
-        res.setHeader('Content-Type', 'text/plain; charset=utf-8')
+        res.setHeader(
+          'Content-Type',
+          'text/plain; charset=utf-8',
+        )
+
         res.end(robotsTxt)
       })
     },
@@ -148,27 +162,36 @@ function figmaSiteConfiguration(config: FigmaSiteConfiguration): Plugin {
       handler(html) {
         let result = html
 
-        result = replaceHtmlCommentSlot(result, 'figma:lang', language)
+        result = replaceHtmlCommentSlot(
+          result,
+          'figma:lang',
+          language,
+        )
+
         result = replaceHtmlCommentSlot(
           result,
           'figma:title',
           escapeHtmlText(title),
         )
+
         result = replaceHtmlCommentSlot(
           result,
           'figma:head-start',
           headStart,
         )
+
         result = replaceHtmlCommentSlot(
           result,
           'figma:head-end',
           headEnd,
         )
+
         result = replaceHtmlCommentSlot(
           result,
           'figma:body-start',
           bodyStart,
         )
+
         result = replaceHtmlCommentSlot(
           result,
           'figma:body-end',
@@ -300,6 +323,7 @@ function figmaSiteConfiguration(config: FigmaSiteConfiguration): Plugin {
     color: #fff;
     padding: 8px 12px;
     font: 600 14px/1.2 system-ui, sans-serif;
+    text-decoration: none;
   }
 
   .figma-bypass-link:focus {
@@ -357,7 +381,10 @@ function figmaErrorOverlayReplay(): Plugin {
 
           if (type === 'error') {
             lastError = payload as object
-          } else if (type === 'update' || type === 'full-reload') {
+          } else if (
+            type === 'update' ||
+            type === 'full-reload'
+          ) {
             lastError = null
           }
         }
@@ -380,6 +407,7 @@ function figmaErrorOverlayReplay(): Plugin {
  */
 function figmaReactRefreshBoundaryFallback(): Plugin {
   const hadRefreshBoundary = new Map<string, boolean>()
+
   let sendFullReload: (() => void) | null = null
 
   return {
@@ -404,16 +432,25 @@ function figmaReactRefreshBoundaryFallback(): Plugin {
       }
 
       const moduleId = id.split('?')[0] ?? id
+
       const hasRefreshBoundary =
         code.includes('registerExportsForReactRefresh')
 
       const previousHadRefreshBoundary =
         hadRefreshBoundary.get(moduleId)
 
-      hadRefreshBoundary.set(moduleId, hasRefreshBoundary)
+      hadRefreshBoundary.set(
+        moduleId,
+        hasRefreshBoundary,
+      )
 
-      if (previousHadRefreshBoundary && !hasRefreshBoundary) {
-        queueMicrotask(() => sendFullReload?.())
+      if (
+        previousHadRefreshBoundary &&
+        !hasRefreshBoundary
+      ) {
+        queueMicrotask(() =>
+          sendFullReload?.(),
+        )
       }
 
       return null
@@ -448,11 +485,20 @@ function figmaMakeKitPlugin(options: {
 </head>
 <body>
 <div id="figma-make-kit-root"></div>
+
 <script type="module">
   import { stories } from 'virtual:figma-stories'
-  window.__FIGMA__ = Object.assign(window.__FIGMA__ ?? {}, { stories })
-  window.dispatchEvent(new CustomEvent('figma.ready'))
+
+  window.__FIGMA__ = Object.assign(
+    window.__FIGMA__ ?? {},
+    { stories }
+  )
+
+  window.dispatchEvent(
+    new CustomEvent('figma.ready')
+  )
 </script>
+
 </body>
 </html>`
 
@@ -461,33 +507,49 @@ function figmaMakeKitPlugin(options: {
     apply: 'serve',
 
     resolveId(id) {
-      if (id === VIRTUAL_ID) return RESOLVED_ID
+      if (id === VIRTUAL_ID) {
+        return RESOLVED_ID
+      }
+
       return null
     },
 
     load(id) {
-      if (id !== RESOLVED_ID) return null
+      if (id !== RESOLVED_ID) {
+        return null
+      }
+
       return STORIES_MODULE
     },
 
     configureServer(server) {
-      server.middlewares.use(async (req, res, next) => {
-        const url = req.url || ''
+      server.middlewares.use(
+        async (req, res, next) => {
+          const url = req.url || ''
 
-        if (url.split('?')[0] !== ROUTE) return next()
+          if (
+            url.split('?')[0] !== ROUTE
+          ) {
+            return next()
+          }
 
-        try {
-          res.setHeader('Content-Type', 'text/html')
-          res.end(
-            await server.transformIndexHtml(
-              url,
-              HTML_BOOTSTRAP,
-            ),
-          )
-        } catch (err) {
-          next(err as Error)
-        }
-      })
+          try {
+            res.setHeader(
+              'Content-Type',
+              'text/html',
+            )
+
+            res.end(
+              await server.transformIndexHtml(
+                url,
+                HTML_BOOTSTRAP,
+              ),
+            )
+          } catch (err) {
+            next(err as Error)
+          }
+        },
+      )
     },
   }
 }
