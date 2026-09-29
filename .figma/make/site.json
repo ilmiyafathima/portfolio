@@ -1,0 +1,10 @@
+{
+  "description": "Showcase your graphic design expertise with a modern portfolio website that highlights your unique style, projects, and creative philosophy.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
